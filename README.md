@@ -96,6 +96,39 @@ cat ~/.docker/config.json
 
 **Screenshot:** AWS ECR login and `config.json`
 
+### 3. Get the credentials into Minikube
+
+Minikube runs inside a VM/container, so it **cannot read the credentials stored on your local machine** (for example, macOS keeps them in the keychain). Instead, we log in to the registry from *inside* the Minikube node.
+
+Get an auth token:
+
+```bash
+aws ecr get-login-password --region <REGION>
+```
+
+SSH into the Minikube node and confirm there is no `.docker` directory yet:
+
+```bash
+minikube ssh
+ls -a
+```
+
+Log in from inside the node, pasting the token as the password:
+
+```bash
+docker login --username AWS -p <TOKEN> <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com
+ls -a                          # a .docker directory now exists
+cat .docker/config.json
+```
+
+Exit the node and copy `config.json` to your local machine, where `kubectl` runs:
+
+```bash
+exit
+minikube cp minikube:/home/docker/.docker/config.json ~/.docker/config.json
+```
+
+
 
 
 
